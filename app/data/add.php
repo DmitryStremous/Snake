@@ -1,7 +1,9 @@
 <?php
-$name = $_POST['name'];
-$score = $_POST['score'];
+$jsonData = $_POST['name'];
 
-$f = fopen('records.txt', 'a+');
-fwrite($f, $name . ":" . $score . "\n");
+$f = fopen('records.json', 'w');
+fwrite($f,"");
+fclose($f);
+$f = fopen('records.json', 'a+');
+fwrite($f, $jsonData);
 fclose($f);

@@ -48,7 +48,7 @@ gulp.task('css', function() {
 // JavaScript
 gulp.task('js', function() {
   return gulp.src('js/script.js')
-    .pipe(uglify())
+    //.pipe(uglify())
     .pipe(rename("script.min.js"))
     .pipe(gulp.dest('app/js/'))
     .pipe(notify("JS Done! :)"));

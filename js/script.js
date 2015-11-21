@@ -98,27 +98,31 @@
 		var score = 0;
 		var level = 1;
 		var speed = 200;
+		var recordsJson = "";
 
 		$(".btn-record").click(function(){
 
 			if ($(".records").hasClass("show")) {
 				$(".records").animate({ left:"-300px"}, 600);
-				$(".btn-record").css("background-image", "url('../img/records.png')");
+				$(".btn-record").css("background-image", "url('img/records.png')");
 			} else {
-				$.get("../data/records.json", "data=content" , function(data) {
-						$(".results").empty();
-						var jsonData = JSON.parse(data);
-						var textToAppend = "<ul>";
-						for (var i = 0, len = jsonData.length; i < len; i++) {
-							for (var item in jsonData[i]) {
-								textToAppend += "<li>" + item + " : " + jsonData[i][item] + "</li>";
-							}
-						};
-						textToAppend += "</ul>";
-						$(".results").append(textToAppend);
-					},"html");
+
+				$.get("data/records.json", "data=content" , function(data) {
+					$(".results").empty();
+					recordsJson = data;
+					var jsonData = JSON.parse(data);
+					var textToAppend = "<ul>";
+					for (var i = 0, len = jsonData.length; i < len; i++) {
+						for (var item in jsonData[i]) {
+							textToAppend += "<li>" + item + " : " + jsonData[i][item] + "</li>";
+						}
+					};
+					textToAppend += "</ul>";
+					$(".results").append(textToAppend);
+				},"html");
+
 				$(".records").animate({ left: "0px"}, 600);
-				$(".btn-record").css("background-image", "url('../img/records_lt.png')");
+				$(".btn-record").css("background-image", "url('img/records_lt.png')");
 			};
 			$(".records").toggleClass("show");
 		});
@@ -202,16 +206,38 @@
 					matrix.matrix.css("background-color", "red");
 					clearInterval(start);
 					console.log($("#player").text() + " " + $("#score").text());
-					$.post("../data/add.php", {name : $("#player").text(), score : $("#score").text()}, function(){
-						$.get("../data/get.php", "data=content" , function(data) {
+
+					$.get("data/records.json", "data=content" , function(data) {
+						recordsJson = JSON.parse(data);
+						console.log(recordsJson);
+						var stringTemp = "{" + "\"" + $("#player").text() + "\"" + ":"+ "\"" + $("#score").text() + "\"" + "}";
+
+						recordsJson.push(JSON.parse(stringTemp));
+						console.log(recordsJson);
+						recordsJson = JSON.stringify(recordsJson);
+						var tempObj = {
+							name: recordsJson
+						}
+						console.log(tempObj);
+
+						$.post("data/add.php", tempObj, function(){}, "html")
+						.done(function(){
+							var jsonData = JSON.parse(recordsJson);
 							$(".results").empty();
-							$(".results").append(data);
-						},"html");
-					}, "html");
+							var textToAppend = "<ul>";
+							for (var i = 0, len = jsonData.length; i < len; i++) {
+								for (var item in jsonData[i]) {
+									textToAppend += "<li>" + item + " : " + jsonData[i][item] + "</li>";
+								}
+							};
+							textToAppend += "</ul>";
+							$(".results").append(textToAppend);
+						});
+					},"html");
 
 					if (!$(".records").hasClass("show")) {
 						$(".records").animate({ left: "0px"}, 600);
-						$(".btn-record").css("background-image", "url('../img/records_lt.png')");
+						$(".btn-record").css("background-image", "url('img/records_lt.png')");
 						$(".records").toggleClass("show");
 					};
 				}
