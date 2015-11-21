@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Snake</title>
+	<link rel="stylesheet" href="css/bundle.min.css">
+</head>
+<body>
+	<div class="darkness"></div>
+
+	<header>
+		<h1>Snake - My First Game</h1>
+	</header>
+
+	<section class="main">
+		<div id="controls">
+			<button id="startGame" type="button">Start Game</button>
+			<button id="resetGame" class="hidden" type="button">Try again!</button>
+			<div class="statusGame">Player: <span id="player"></span></div>
+			<div class="statusGame">Score: <span id="score"></span></div>
+			<div class="statusGame">Level: <span id="level"></span></div>
+		</div>
+		<div id="status">
+			<h2 class=""></h2>
+		</div>
+		<div id="play_ground"></div>
+	</section>
+
+	<div id="player_menu">
+		<h3>What is your name?</h3>
+		<input type="text" placeholder="Name">
+		<button>ОК</button>
+	</div>
+
+	<div class="records">
+		<h3>Records:</h3>
+		<div class="results"></div>
+		<div class="btn-record"></div>
+	</div>
+
+	<script src="bower/jquery/dist/jquery.min.js"></script>
+	<script src="js/script.min.js"></script>
+</body>
+</html>

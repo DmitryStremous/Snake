@@ -1,0 +1,11 @@
+{
+  "name": "snake_v_1.0",
+  "authors": [
+    "Dmitry Stremous <stremous@list.ru>"
+  ],
+  "description": "",
+  "dependencies": {
+    "bootstrap": "~3.3.5",
+    "blueimp-file-upload": "jquery-file-upload#~9.11.2"
+  }
+}
