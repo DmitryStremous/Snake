@@ -3,9 +3,9 @@
 		UP: "38",
 		DOWN: "40",
 		LEFT: "37",
-		RIGHT: "39"
+		RIGHT: "39",
+		ENTER: "13"
 	}
-
 
 	function Matrix(containerId, rows, cols) {
 		this.matrix = $(containerId);
@@ -69,7 +69,7 @@
 			} else if (that.course == "up" && this.alive) {
 				that.body[0].y--;
 			}
-			/*Проверка на самосъедание*/
+			/*Check on eat itself*/
 			for (i = 1; i < that.body.length; i++ ) {
 				if ((that.body[i].x == that.body[0].x) &&  (that.body[i].y == that.body[0].y)) {
 					this.alive = false;
@@ -127,6 +127,12 @@
 			$(".records").toggleClass("show");
 		});
 
+		function closeEnterName(event){
+			$("#player").text($("#player_menu input").val());
+			$("#player_menu").addClass("hidden");
+			$(".darkness").fadeOut();
+		}
+
 		$("#player_menu button").click(function(){
 			$("#player").text($("#player_menu input").val());
 			$("#player_menu").addClass("hidden");
@@ -165,7 +171,7 @@
 
 			function gameplay() {
 				snake.move();
-				/*Проверка на ударение об стенки*/
+				/*Check on hit a wall*/
 				if (snake.body[0].y < 1 || snake.body[0].y > 20 || snake.body[0].x < 1 || snake.body[0].x > 20) {
 					snake.alive = false;
 					$("#status h2").addClass("game_over");
@@ -176,7 +182,7 @@
 					snake.matrix.setCell(snake.body[0].y, snake.body[0].x, "head", false);
 					snake.matrix.setCell(snake.body[1].y, snake.body[1].x, "headCried", true);
 				}
-				/*При съедании фруктов*/
+				/*eating fruit*/
 				if ((snake.body[0].y == matrix.indexRowFruit) && (snake.body[0].x == matrix.indexColFruit)) {
 					matrix.removeFruit();
 					snake.body.push({x: 0, y: 0});
@@ -242,8 +248,6 @@
 					};
 				}
 			}
-
-
 			window.onkeydown = function (event) {
 				if(!event)
 					var event = window.event;
@@ -252,7 +256,6 @@
 					keyCode = event.keyCode; // IE
 				else if (event.which)
 					keyCode = event.which; // all browsers
-
 				if (keyCode == KEY_CODE.UP){
 					snake.course = "up";
 				} else if (keyCode == KEY_CODE.LEFT){
@@ -264,5 +267,22 @@
 				}
 			}
 		});
+		var player_menu = $("#player_menu").hasClass("hidden");
+		window.onkeydown = function (event) {
+			if(!event)
+				var event = window.event;
+			var keyCode;
+			if (event.keyCode)
+				keyCode = event.keyCode; // IE
+			else if (event.which)
+				keyCode = event.which; // all browsers
+			console.log(keyCode);
+
+			if (keyCode == KEY_CODE.ENTER && !player_menu){
+				$("#player").text($("#player_menu input").val());
+				$("#player_menu").addClass("hidden");
+				$(".darkness").fadeOut();
+			}
+		}
 	}
 })();
