@@ -1,4 +1,5 @@
 (function(){
+
 	var KEY_CODE = {
 		UP: "38",
 		DOWN: "40",
@@ -127,12 +128,6 @@
 			$(".records").toggleClass("show");
 		});
 
-		function closeEnterName(event){
-			$("#player").text($("#player_menu input").val());
-			$("#player_menu").addClass("hidden");
-			$(".darkness").fadeOut();
-		}
-
 		$("#player_menu button").click(function(){
 			$("#player").text($("#player_menu input").val());
 			$("#player_menu").addClass("hidden");
@@ -248,14 +243,9 @@
 					};
 				}
 			}
-			window.onkeydown = function (event) {
-				if(!event)
-					var event = window.event;
-				var keyCode;
-				if (event.keyCode)
-					keyCode = event.keyCode; // IE
-				else if (event.which)
-					keyCode = event.which; // all browsers
+
+			$(window).keydown(function (event) {
+				var keyCode = event.keyCode;
 				if (keyCode == KEY_CODE.UP){
 					snake.course = "up";
 				} else if (keyCode == KEY_CODE.LEFT){
@@ -265,24 +255,16 @@
 				} else if (keyCode == KEY_CODE.DOWN){
 					snake.course = "down";
 				}
-			}
+			});
 		});
 		var player_menu = $("#player_menu").hasClass("hidden");
-		window.onkeydown = function (event) {
-			if(!event)
-				var event = window.event;
-			var keyCode;
-			if (event.keyCode)
-				keyCode = event.keyCode; // IE
-			else if (event.which)
-				keyCode = event.which; // all browsers
-			console.log(keyCode);
+
+		$(window).keydown(function (event) {
+			var keyCode = event.keyCode;
 
 			if (keyCode == KEY_CODE.ENTER && !player_menu){
-				$("#player").text($("#player_menu input").val());
-				$("#player_menu").addClass("hidden");
-				$(".darkness").fadeOut();
+				$("#player_menu button").click();
 			}
-		}
+		});
 	}
 })();
