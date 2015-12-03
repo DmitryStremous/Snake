@@ -5,41 +5,49 @@
 		DOWN: "40",
 		LEFT: "37",
 		RIGHT: "39",
-		ENTER: "13"
+		ENTER: "13",
+		SPACE: "32"
 	}
 
 	function Matrix(containerId, rows, cols) {
 		this.matrix = $(containerId);
 		this.rows = rows;
 		this.cols = cols;
+		this.fruit = ["grape", "banana", "watermellon", "apple"];
 
-		this.create = function () {
-			for (var i = 0; i < this.rows*this.cols; i++) {
-				this.matrix.append($("<div class='cell'></div>"));
-			}
+		this.randomCellIndex = function() {
+			return Math.floor(Math.random()*20 +1);
 		}
+
+		this.create = function() {
+			var elementsToAppend = "",
+					i,
+					len;
+			for (i = 0, len = this.rows*this.cols; i < len; i++) {
+				elementsToAppend += "<div class='cell'></div>";
+			}
+			this.matrix.append($(elementsToAppend));
+		}
+
 		this.getIndex = function(row, col) {
 				return (row - 1)*20 + col - 1;
 		}
-		this.getCell = function(row, col) {
-			var obj = this.matrix.children().eq(this.getIndex(row, col));
-			return obj.attr("class");
-		}
+
 		this.setCell = function(row, col, color, val) {
 			var div = this.matrix.children().eq(this.getIndex(row, col));
 			(val) ? div.addClass(color) : div.removeClass(color);
 		}
+
 		this.createFruit = function() {
-			var fruit = ["grape", "banana", "watermellon", "apple"];
-			this.fruitType = fruit[Math.floor(Math.random()*4)];
-			this.indexColFruit = Math.floor(Math.random()*20 +1);
-			this.indexRowFruit = Math.floor(Math.random()*20 +1);
-			var index = this.getIndex(this.indexRowFruit, this.indexColFruit);
-			this.matrix.children().eq(index).addClass(this.fruitType);
+			this.fruitType = this.fruit[Math.floor(Math.random()*4)];
+			this.indexRowFruit = this.randomCellIndex();
+			this.indexColFruit = this.randomCellIndex();
+			this.fruitIndex = this.getIndex(this.indexRowFruit, this.indexColFruit);
+			this.matrix.children().eq(this.fruitIndex).addClass(this.fruitType);
 		}
+
 		this.removeFruit = function() {
-			var index = this.getIndex(this.indexRowFruit, this.indexColFruit);
-			this.matrix.children().eq(index).removeClass(this.fruitType);
+			this.matrix.children().eq(this.fruitIndex).removeClass(this.fruitType);
 		}
 	}
 
@@ -53,218 +61,223 @@
 		var that = this;
 
 		this.create = function() {
-			for (var i = 0; i < that.body.length; i++) {
-				that.matrix.setCell(that.body[i].y, that.body[i].x, that.color, true);
-			}
-			that.matrix.setCell(that.body[0].y, that.body[0].x, "head", true);
-		}
-		this.move = function() {
-			that.body.unshift({y: that.body[0].y, x: that.body[0].x});
+			var i,
+					len;
 
-			if (that.course == "right" && this.alive) {
-				that.body[0].x++;
-			} else if (that.course == "left" && this.alive) {
-				that.body[0].x--;
-			} else if (that.course == "down" && this.alive) {
-				that.body[0].y++;
-			} else if (that.course == "up" && this.alive) {
-				that.body[0].y--;
+			for (i = 0, len = this.body.length; i < len; i++) {
+				this.matrix.setCell(this.body[i].y, this.body[i].x, this.color, true);
 			}
+			this.matrix.setCell(this.body[0].y, this.body[0].x, "head", true);
+		}
+
+		this.move = function() {
+			this.body.unshift({y: this.body[0].y, x: this.body[0].x});
+
+			if (this.course == "right" && this.alive) {
+				this.body[0].x++;
+			} else if (this.course == "left" && this.alive) {
+				this.body[0].x--;
+			} else if (this.course == "down" && this.alive) {
+				this.body[0].y++;
+			} else if (this.course == "up" && this.alive) {
+				this.body[0].y--;
+			}
+
 			/*Check on eat itself*/
-			for (i = 1; i < that.body.length; i++ ) {
-				if ((that.body[i].x == that.body[0].x) &&  (that.body[i].y == that.body[0].y)) {
+			for (var i = 1, len = this.body.length; i < len; i++ ) {
+				if ((this.body[i].x == this.body[0].x) &&  (this.body[i].y == this.body[0].y)) {
 					this.alive = false;
-					$("#status h2").addClass("game_over");
-					$("#status h2").html("Ай-яй-яй змейка сама себя укусила...");
-					for (var i = 0; i < that.body.length; i++) {
-						that.matrix.setCell(that.body[i].y, that.body[i].x, that.color, false);
-					}
-					that.matrix.setCell(that.body[1].y, that.body[1].x, "head", false);
-					that.matrix.setCell(that.body[0].y, that.body[0].x, "headCried", true);
+					$("#status h2").addClass("game_over").html("Ай-яй-яй змейка сама себя укусила...");
+					this.matrix.setCell(this.body[1].y, this.body[1].x, "head", false);
+					this.matrix.setCell(this.body[1].y, this.body[1].x, "headCried", true);
 					return false;
 				}
 			}
 
-			var deleteCell = that.body.pop();
-			that.matrix.setCell(deleteCell.y, deleteCell.x, that.color, false);
-			that.matrix.setCell(that.body[0].y, that.body[0].x, that.color, true);
+			var deleteCell = this.body.pop();
+			this.matrix.setCell(deleteCell.y, deleteCell.x, this.color, false);
+			this.matrix.setCell(this.body[0].y, this.body[0].x, this.color, true);
 			/*Drawing the head of snake*/
-			that.matrix.setCell(that.body[0].y, that.body[0].x, "head", true);
-			that.matrix.setCell(that.body[1].y, that.body[1].x, "head", false);
+			this.matrix.setCell(this.body[0].y, this.body[0].x, "head", true);
+			this.matrix.setCell(this.body[1].y, this.body[1].x, "head", false);
 		}
 	}
 
-	window.onload = function() {
-		var start = null;
-		var score = 0;
-		var level = 1;
-		var speed = 200;
-		var recordsJson = "";
+	$(window).load(function() {
+		var start,
+				ready = false,
+				matrix = null,
+				snake = null,
+				score = 0,
+				level = 1,
+				speed = 200,
+				recordsJson = "";
 
-		$(".btn-record").click(function(){
+		var results = $(".results"),
+				btnRecord = $(".btn-record"),
+				records = $(".records"),
+				resetGame = $("#resetGame"),
+				startGame = $("#startGame"),
+				playground = null,
+				boxPlayground = $("#play_ground"),
+				boxScore = $("#score"),
+				boxLevel = $("#level"),
+				boxPlayer = $("#player"),
+				boxStatus = $("#status h2"),
+				player_menu = $("#player_menu");
 
-			if ($(".records").hasClass("show")) {
-				$(".records").animate({ left:"-300px"}, 600);
-				$(".btn-record").css("background-image", "url('img/records.png')");
-			} else {
+		$.get("data/records.json", "data=content" , function(data) {
+			recordsJson = JSON.parse(data);
+			showRecords(recordsJson);
+		},"html");
 
-				$.get("data/records.json", "data=content" , function(data) {
-					$(".results").empty();
-					recordsJson = data;
-					var jsonData = JSON.parse(data);
-					var textToAppend = "<ul>";
-					for (var i = 0, len = jsonData.length; i < len; i++) {
-						for (var item in jsonData[i]) {
-							textToAppend += "<li>" + item + " : " + jsonData[i][item] + "</li>";
-						}
-					};
-					textToAppend += "</ul>";
-					$(".results").append(textToAppend);
-				},"html");
-
-				$(".records").animate({ left: "0px"}, 600);
-				$(".btn-record").css("background-image", "url('img/records_lt.png')");
+		function showRecords(recordsJson) {
+			var jsonData = recordsJson;
+			jsonData.sort(function(num1, num2){
+				var num1 = parseInt(num1["score"]);
+				var num2 = parseInt(num2["score"]);
+				if(num1 > num2) {
+					return -1
+				} else if (num1 < num2) {
+					return 1
+				} else {
+					return 0
+				}
+			});
+			results.empty();
+			var textToAppend = "<ul>";
+			for (var i = 0, len = jsonData.length; i < len; i++) {
+				// for (var item in jsonData[i]) {
+					//textToAppend += "<li>" + item + " : " + jsonData[i][item] + "</li>";
+					textToAppend += "<li>" + jsonData[i]["name"] + " : " + jsonData[i]["score"] + "</li>";
+				// }
 			};
-			$(".records").toggleClass("show");
+			textToAppend += "</ul>";
+			results.append(textToAppend);
+		}
+
+		function gameplay() {
+			function nextLevel(){
+				score+=200;
+				level+=1;
+				speed-=50;
+				clearInterval(start);
+				start = setInterval(gameplay, speed);
+				boxScore.html(score);
+				boxLevel.html(level);
+			}
+
+			snake.move();
+
+			/*Check on hit a wall*/
+			if (snake.body[0].y < 1 || snake.body[0].y > 20 || snake.body[0].x < 1 || snake.body[0].x > 20) {
+				snake.alive = false;
+				boxStatus.addClass("game_over");
+				boxStatus.html("Ай-яй-яй змейка разбилась об стенку...");
+				snake.matrix.setCell(snake.body[0].y, snake.body[0].x, "head green", false);
+				snake.matrix.setCell(snake.body[1].y, snake.body[1].x, "headCried", true);
+			}
+			/*eating fruit*/
+			if ((snake.body[0].y == matrix.indexRowFruit) && (snake.body[0].x == matrix.indexColFruit)) {
+				matrix.removeFruit();
+				snake.body.push({x: 0, y: 0});
+				matrix.createFruit();
+				score+=100;
+				boxScore.html(score);
+			}
+			if ((score != 0) && (score % 500 == 0)) {
+				nextLevel();
+			}
+			if (!snake.alive) {
+				playground.css("background-color", "red");
+				clearInterval(start);
+
+				var stringTemp = "{" + "\"name\"" + ":"+ "\"" + boxPlayer.text() + "\"," + "\"score\"" + ":"+ "\"" + boxScore.text() + "\"" + "}";
+				recordsJson.push(JSON.parse(stringTemp));
+				showRecords(recordsJson);
+				var jsonData = JSON.stringify(recordsJson);
+				// var tempObj = {
+				// 	name: recordsJson
+				// }
+				// console.log(tempObj);
+
+				$.post("data/add.php", {name : jsonData}, "html");
+
+				console.log($(".records").hasClass("show"));
+				if (!$(".records").hasClass("show")) {
+					btnRecord.click();
+				};
+			}
+		}
+
+		btnRecord.click(function(){
+			if (results.hasClass("show")) {
+				records.animate({ left:"-300px"}, 600);
+				btnRecord.css("background-image", "url('img/records.png')");
+			} else {
+				records.animate({ left: "0px"}, 600);
+				btnRecord.css("background-image", "url('img/records_lt.png')");
+			};
+			results.toggleClass("show");
 		});
 
 		$("#player_menu button").click(function(){
-			$("#player").text($("#player_menu input").val());
+			boxPlayer.text($("#player_menu input").val());
 			$("#player_menu").addClass("hidden");
 			$(".darkness").fadeOut();
+			ready = true;
 		});
 
-		$("#resetGame").click(function(){
+		resetGame.click(function(){
 			clearInterval(start);
-			if ($("#matrix")) {
-				$("#matrix").remove();
-				$("#status h2").empty();
-				$("#status h2").removeClass("game_over");
+			if (playground) {
+				playground.remove();
+				boxStatus.empty();
+				boxStatus.removeClass("game_over");
 			}
-			$("#startGame").removeClass("hidden");
+			startGame.removeClass("hidden");
 			$(this).addClass("hidden");
 			speed = 200;
 			score = 0;
 			level = 1;
 		});
 
-		$("#startGame").click(function() {
+		startGame.click(function() {
+			boxPlayground.append("<div id='matrix'></div>");
+			playground = $("#matrix");
 			$(this).addClass("hidden");
-			$("#resetGame").removeClass("hidden");
+			resetGame.removeClass("hidden");
 
-			$("#score").html(score);
-			$("#level").html(level);
-			$("#play_ground").append("<div id='matrix'></div>");
-			var matrix = new Matrix("#matrix", 20, 20);
+			boxScore.html(score);
+			boxLevel.html(level);
+
+			matrix = new Matrix("#matrix", 20, 20);
 			matrix.create();
 			matrix.createFruit();
 
-			var snake = new Snake([{x: 5, y: 5},{x: 4, y: 5},{x:3, y: 5}], "right", "yellow", matrix, true);
+			snake = new Snake([{x: 5, y: 5},{x: 4, y: 5},{x:3, y: 5}], "right", "green", matrix, true);
 			snake.create();
 
 			start = setInterval(gameplay, speed);
-
-			function gameplay() {
-				snake.move();
-				/*Check on hit a wall*/
-				if (snake.body[0].y < 1 || snake.body[0].y > 20 || snake.body[0].x < 1 || snake.body[0].x > 20) {
-					snake.alive = false;
-					$("#status h2").addClass("game_over");
-					$("#status h2").html("Ай-яй-яй змейка разбилась об стенку...");
-					for (var i = 0; i < snake.body.length; i++) {
-						snake.matrix.setCell(snake.body[i].y, snake.body[i].x, snake.color, false);
-					}
-					snake.matrix.setCell(snake.body[0].y, snake.body[0].x, "head", false);
-					snake.matrix.setCell(snake.body[1].y, snake.body[1].x, "headCried", true);
-				}
-				/*eating fruit*/
-				if ((snake.body[0].y == matrix.indexRowFruit) && (snake.body[0].x == matrix.indexColFruit)) {
-					matrix.removeFruit();
-					snake.body.push({x: 0, y: 0});
-					matrix.createFruit();
-					score+=100;
-					$("#score").html(score);
-				}
-				function nextLevel(){
-					score+=200;
-					level+=1;
-					speed-=50;
-					clearInterval(start);
-					start = setInterval(gameplay, speed);
-					$("#score").html(score);
-					$("#level").html(level);
-				}
-				if (score == 500) {
-					nextLevel();
-				} else if (score == 1000){
-					nextLevel();
-				} else if (score == 1500){
-					nextLevel();
-				} else if (score == 2000){
-					nextLevel();
-				}
-				if (!snake.alive) {
-					matrix.matrix.css("background-color", "red");
-					clearInterval(start);
-					console.log($("#player").text() + " " + $("#score").text());
-
-					$.get("data/records.json", "data=content" , function(data) {
-						recordsJson = JSON.parse(data);
-						console.log(recordsJson);
-						var stringTemp = "{" + "\"" + $("#player").text() + "\"" + ":"+ "\"" + $("#score").text() + "\"" + "}";
-
-						recordsJson.push(JSON.parse(stringTemp));
-						console.log(recordsJson);
-						recordsJson = JSON.stringify(recordsJson);
-						var tempObj = {
-							name: recordsJson
-						}
-						console.log(tempObj);
-
-						$.post("data/add.php", tempObj, function(){}, "html")
-						.done(function(){
-							var jsonData = JSON.parse(recordsJson);
-							$(".results").empty();
-							var textToAppend = "<ul>";
-							for (var i = 0, len = jsonData.length; i < len; i++) {
-								for (var item in jsonData[i]) {
-									textToAppend += "<li>" + item + " : " + jsonData[i][item] + "</li>";
-								}
-							};
-							textToAppend += "</ul>";
-							$(".results").append(textToAppend);
-						});
-					},"html");
-
-					if (!$(".records").hasClass("show")) {
-						$(".records").animate({ left: "0px"}, 600);
-						$(".btn-record").css("background-image", "url('img/records_lt.png')");
-						$(".records").toggleClass("show");
-					};
-				}
-			}
-
-			$(window).keydown(function (event) {
-				var keyCode = event.keyCode;
-				if (keyCode == KEY_CODE.UP){
-					snake.course = "up";
-				} else if (keyCode == KEY_CODE.LEFT){
-					snake.course = "left";
-				} else if (keyCode == KEY_CODE.RIGHT){
-					snake.course = "right";
-				} else if (keyCode == KEY_CODE.DOWN){
-					snake.course = "down";
-				}
-			});
 		});
-		var player_menu = $("#player_menu").hasClass("hidden");
 
 		$(window).keydown(function (event) {
 			var keyCode = event.keyCode;
-
-			if (keyCode == KEY_CODE.ENTER && !player_menu){
+			if (keyCode == KEY_CODE.ENTER && !player_menu.hasClass("hidden")){
 				$("#player_menu button").click();
 			}
+			if (keyCode == KEY_CODE.SPACE && ready) {
+				startGame.click();
+			}
+			if (keyCode == KEY_CODE.UP && snake){
+				snake.course = "up";
+			} else if (keyCode == KEY_CODE.LEFT && snake){
+				snake.course = "left";
+			} else if (keyCode == KEY_CODE.RIGHT && snake){
+				snake.course = "right";
+			} else if (keyCode == KEY_CODE.DOWN && snake){
+				snake.course = "down";
+			}
 		});
-	}
+	});
 })();
